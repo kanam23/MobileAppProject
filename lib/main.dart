@@ -7,6 +7,45 @@ class FlashCardApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final List<Map<String, dynamic>> flashCards = [
+      {
+        'question':
+            'Which of the following animals can sleep with one eye open?',
+        'options': ['A. Giraffe', 'B. Elephant', 'C. Dolphin', 'D. Penguin'],
+        'correctOption': 'C. Dolphin',
+      },
+      {
+        'question': 'How many bones does an adult human have?',
+        'options': ['A. 206', 'B. 212', 'C. 196', 'D. 220'],
+        'correctOption': 'A. 206',
+      },
+      {
+        'question': 'What is the tallest building in the world?',
+        'options': [
+          'A. Burj Khalifa',
+          'B. Shanghai Tower',
+          'C. Abraj Al Bait Clock Tower',
+          'D. Taipei 101'
+        ],
+        'correctOption': 'A. Burj Khalifa',
+      },
+      {
+        'question': 'What is the capital of France?',
+        'options': ['A. Madrid', 'B. London', 'C. Rome', 'D. Paris'],
+        'correctOption': 'D. Paris',
+      },
+      {
+        'question': 'Who is known as the father of modern physics?',
+        'options': [
+          'A. Isaac Newton',
+          'B. Albert Einstein',
+          'C. Galileo Galilei',
+          'D. Nikola Tesla'
+        ],
+        'correctOption': 'B. Albert Einstein',
+      },
+    ];
+
     return MaterialApp(
       title: 'Flash Card App',
       theme: ThemeData(
@@ -14,16 +53,21 @@ class FlashCardApp extends StatelessWidget {
       ),
       home: const HomeScreen(),
       routes: {
-        '/viewFlashCards': (context) => const ViewFlashCardsScreen(),
-        '/createFlashCards': (context) => const CreateFlashCardsScreen(),
-        '/takeQuiz': (context) => const TakeQuizScreen(),
+        '/viewFlashCards': (context) =>
+            ViewFlashCardsScreen(flashCards: flashCards),
+        '/createFlashCards': (context) =>
+            CreateFlashCardsScreen(flashCards: flashCards),
+        '/takeQuiz': (context) => TakeQuizScreen(
+              quizQuestions: flashCards,
+            ),
+        '/congratulations': (context) => const CongratulationsScreen(),
       },
     );
   }
 }
 
 class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
+  const HomeScreen({Key? key});
 
   @override
   Widget build(BuildContext context) {
@@ -70,7 +114,8 @@ class HomeScreen extends StatelessWidget {
 }
 
 class ViewFlashCardsScreen extends StatefulWidget {
-  const ViewFlashCardsScreen({super.key});
+  final List<Map<String, dynamic>> flashCards;
+  const ViewFlashCardsScreen({Key? key, required this.flashCards});
 
   @override
   _ViewFlashCardsScreenState createState() => _ViewFlashCardsScreenState();
@@ -79,47 +124,18 @@ class ViewFlashCardsScreen extends StatefulWidget {
 class _ViewFlashCardsScreenState extends State<ViewFlashCardsScreen> {
   int _currentIndex = 0;
 
-  final List<Map<String, dynamic>> flashCards = [
-    {
-      'question': 'Which of the following animals can sleep with one eye open?',
-      'options': ['A. Giraffe', 'B. Elephant', 'C. Dolphin', 'D. Penguin'],
-      'correctOption': 'C. Dolphin',
-    },
-    {
-      'question': 'How many bones does an adult human have?',
-      'options': ['A. 206', 'B. 212', 'C. 196', 'D. 220'],
-      'correctOption': 'A. 206',
-    },
-    {
-      'question': 'What is the tallest building in the world?',
-      'options': [
-        'A. Burj Khalifa',
-        'B. Shanghai Tower',
-        'C. Abraj Al Bait Clock Tower',
-        'D. Taipei 101'
-      ],
-      'correctOption': 'A. Burj Khalifa',
-    },
-    {
-      'question': 'What is the capital of France?',
-      'options': ['A. Madrid', 'B. London', 'C. Rome', 'D. Paris'],
-      'correctOption': 'D. Paris',
-    },
-    {
-      'question': 'Who is known as the father of modern physics?',
-      'options': [
-        'A. Isaac Newton',
-        'B. Albert Einstein',
-        'C. Galileo Galilei',
-        'D. Nikola Tesla'
-      ],
-      'correctOption': 'B. Albert Einstein',
-    },
-  ];
-
   void _nextCard() {
     setState(() {
-      _currentIndex = (_currentIndex + 1) % flashCards.length;
+      _currentIndex = (_currentIndex + 1) % widget.flashCards.length;
+    });
+  }
+
+  void _deleteCurrentCard() {
+    setState(() {
+      widget.flashCards.removeAt(_currentIndex);
+      if (_currentIndex >= widget.flashCards.length) {
+        _currentIndex = 0;
+      }
     });
   }
 
@@ -130,66 +146,89 @@ class _ViewFlashCardsScreenState extends State<ViewFlashCardsScreen> {
         title: const Text('View Flash Cards'),
       ),
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            // Front of the flash card
-            Container(
-              width: 350,
-              height: 250,
-              padding: const EdgeInsets.all(20.0),
-              color: Colors.blue,
-              child: Column(
+        child: widget.flashCards.isNotEmpty // Check if flashCards is not empty
+            ? Column(
                 mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Text(
-                    'Fun Fact:',
-                    style: TextStyle(fontSize: 24),
+                children: <Widget>[
+                  // Front of the flash card
+                  Container(
+                    width: 350,
+                    height: 250,
+                    padding: const EdgeInsets.all(20.0),
+                    color: Colors.blue,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Text(
+                          'Fun Fact:',
+                          style: TextStyle(fontSize: 24),
+                        ),
+                        const SizedBox(height: 20),
+                        Text(
+                          widget.flashCards[_currentIndex]['question'],
+                          style: const TextStyle(fontSize: 20),
+                        ),
+                      ],
+                    ),
+                  ),
+                  // Back of the flash card with answer choices
+                  Container(
+                    width: 350,
+                    height: 250,
+                    padding: const EdgeInsets.all(20.0),
+                    color: Colors.red,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        for (final option in widget.flashCards[_currentIndex]
+                            ['options'])
+                          ElevatedButton(
+                            onPressed: () {},
+                            style: option ==
+                                    widget.flashCards[_currentIndex]
+                                        ['correctOption']
+                                ? ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.green)
+                                : null,
+                            child: Text(option),
+                          ),
+                      ],
+                    ),
                   ),
                   const SizedBox(height: 20),
-                  Text(
-                    flashCards[_currentIndex]['question'],
-                    style: const TextStyle(fontSize: 20),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      ElevatedButton(
+                        onPressed: _nextCard,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.green,
+                        ),
+                        child: const Text('Next'),
+                      ),
+                      const SizedBox(width: 20),
+                      ElevatedButton(
+                        onPressed: _deleteCurrentCard,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.red,
+                        ),
+                        child: const Text('Delete'),
+                      ),
+                    ],
                   ),
                 ],
-              ),
-            ),
-            // Back of the flash card with answer choices
-            Container(
-              width: 350,
-              height: 250,
-              padding: const EdgeInsets.all(20.0),
-              color: Colors.green,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  for (final option in flashCards[_currentIndex]['options'])
-                    ElevatedButton(
-                      onPressed: () {},
-                      style:
-                          option == flashCards[_currentIndex]['correctOption']
-                              ? ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.green)
-                              : null,
-                      child: Text(option),
-                    ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: _nextCard,
-              child: const Text('Next'),
-            ),
-          ],
-        ),
+              )
+            : // Display text when no flash cards are available
+            const Text('No flash cards have been made'),
       ),
     );
   }
 }
 
 class CreateFlashCardsScreen extends StatefulWidget {
-  const CreateFlashCardsScreen({Key? key}) : super(key: key);
+  final List<Map<String, dynamic>> flashCards;
+  const CreateFlashCardsScreen({Key? key, required this.flashCards})
+      : super(key: key);
 
   @override
   _CreateFlashCardsScreenState createState() => _CreateFlashCardsScreenState();
@@ -202,7 +241,36 @@ class _CreateFlashCardsScreenState extends State<CreateFlashCardsScreen> {
   final TextEditingController _backController3 = TextEditingController();
   final TextEditingController _backController4 = TextEditingController();
 
-  int _correctAnswerIndex = -1;
+  int _correctAnswerIndex = 0; // Initialize correct answer index to 0
+
+  void _saveFlashCard() {
+    final List<String> options = [
+      _backController1.text,
+      _backController2.text,
+      _backController3.text,
+      _backController4.text
+    ];
+
+    final newFlashCard = {
+      'question': _frontController.text,
+      'options': options,
+      'correctOption': options[_correctAnswerIndex],
+    };
+
+    setState(() {
+      widget.flashCards.add(newFlashCard);
+    });
+
+    // Clear the text controllers and reset correct answer index
+    _frontController.clear();
+    _backController1.clear();
+    _backController2.clear();
+    _backController3.clear();
+    _backController4.clear();
+    _correctAnswerIndex = 0; // Reset correct answer index
+
+    Navigator.pop(context);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -272,8 +340,13 @@ class _CreateFlashCardsScreenState extends State<CreateFlashCardsScreen> {
                                             ? _backController3
                                             : _backController4,
                                 decoration: InputDecoration(
-                                  hintText: 'Enter answer choice ${i + 1}',
+                                  hintText:
+                                      'Enter answer choice ${String.fromCharCode(65 + i)}',
                                   border: const OutlineInputBorder(),
+                                  fillColor: i == _correctAnswerIndex
+                                      ? Colors.green
+                                      : null,
+                                  filled: true,
                                 ),
                               ),
                             ),
@@ -285,9 +358,7 @@ class _CreateFlashCardsScreenState extends State<CreateFlashCardsScreen> {
               ),
               const SizedBox(height: 20),
               ElevatedButton(
-                onPressed: () {
-                  // Logic for saving flash card will be implemented here
-                },
+                onPressed: _saveFlashCard,
                 child: const Text('Save Flash Card'),
               ),
             ],
@@ -308,8 +379,51 @@ class _CreateFlashCardsScreenState extends State<CreateFlashCardsScreen> {
   }
 }
 
-class TakeQuizScreen extends StatelessWidget {
-  const TakeQuizScreen({super.key});
+class TakeQuizScreen extends StatefulWidget {
+  final List<Map<String, dynamic>> quizQuestions;
+
+  const TakeQuizScreen({Key? key, required this.quizQuestions})
+      : super(key: key);
+
+  @override
+  _TakeQuizScreenState createState() => _TakeQuizScreenState();
+}
+
+class _TakeQuizScreenState extends State<TakeQuizScreen> {
+  int _currentIndex = 0;
+  int _score = 0;
+
+  String? _hoveredOption;
+
+  void _checkAnswer(String selectedOption) {
+    final correctOption = widget.quizQuestions[_currentIndex]['correctOption'];
+
+    if (selectedOption == correctOption) {
+      setState(() {
+        _score++;
+      });
+    }
+
+    _nextQuestion();
+  }
+
+  void _nextQuestion() {
+    setState(() {
+      _currentIndex = (_currentIndex + 1) % widget.quizQuestions.length;
+      _hoveredOption =
+          null; // Reset hovered option when moving to the next question
+    });
+    if (_currentIndex == 0) {
+      Navigator.pushReplacementNamed(
+        context,
+        '/congratulations',
+        arguments: {
+          'score': _score,
+          'totalQuestions': widget.quizQuestions.length
+        },
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -317,8 +431,104 @@ class TakeQuizScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Take Quiz'),
       ),
-      body: const Center(
-        child: Text('Sample Screen for Taking Quiz'),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            Text(
+              'Question ${_currentIndex + 1}/${widget.quizQuestions.length}',
+              style: const TextStyle(fontSize: 20),
+            ),
+            const SizedBox(height: 20),
+            Text(
+              widget.quizQuestions[_currentIndex]['question'],
+              style: const TextStyle(fontSize: 20),
+            ),
+            const SizedBox(height: 20),
+            Column(
+              children: <Widget>[
+                for (final option in widget.quizQuestions[_currentIndex]
+                    ['options'])
+                  MouseRegion(
+                    onHover: (event) {
+                      setState(() {
+                        _hoveredOption = option;
+                      });
+                    },
+                    onExit: (event) {
+                      setState(() {
+                        _hoveredOption = null;
+                      });
+                    },
+                    child: ElevatedButton(
+                      onPressed: () {
+                        _checkAnswer(option);
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor:
+                            _hoveredOption == option ? Colors.green : null,
+                      ),
+                      child: Text(option),
+                    ),
+                  ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class CongratulationsScreen extends StatelessWidget {
+  const CongratulationsScreen({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final Map<String, dynamic> arguments =
+        ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+    final int score = arguments['score'];
+    final int totalQuestions = arguments['totalQuestions'];
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Congratulations'),
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            const Text(
+              'Congratulations!',
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 20),
+            Text(
+              'Your Score: $score/$totalQuestions',
+              style: const TextStyle(fontSize: 20),
+            ),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pushReplacementNamed(context, '/takeQuiz');
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.green,
+              ),
+              child: const Text('Try Again'),
+            ),
+            const SizedBox(height: 10),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.popUntil(context, ModalRoute.withName('/'));
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.blue,
+              ),
+              child: const Text('Home'),
+            ),
+          ],
+        ),
       ),
     );
   }
