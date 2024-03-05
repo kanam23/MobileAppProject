@@ -7,6 +7,45 @@ class FlashCardApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final List<Map<String, dynamic>> flashCards = [
+      {
+        'question':
+            'Which of the following animals can sleep with one eye open?',
+        'options': ['A. Giraffe', 'B. Elephant', 'C. Dolphin', 'D. Penguin'],
+        'correctOption': 'C. Dolphin',
+      },
+      {
+        'question': 'How many bones does an adult human have?',
+        'options': ['A. 206', 'B. 212', 'C. 196', 'D. 220'],
+        'correctOption': 'A. 206',
+      },
+      {
+        'question': 'What is the tallest building in the world?',
+        'options': [
+          'A. Burj Khalifa',
+          'B. Shanghai Tower',
+          'C. Abraj Al Bait Clock Tower',
+          'D. Taipei 101'
+        ],
+        'correctOption': 'A. Burj Khalifa',
+      },
+      {
+        'question': 'What is the capital of France?',
+        'options': ['A. Madrid', 'B. London', 'C. Rome', 'D. Paris'],
+        'correctOption': 'D. Paris',
+      },
+      {
+        'question': 'Who is known as the father of modern physics?',
+        'options': [
+          'A. Isaac Newton',
+          'B. Albert Einstein',
+          'C. Galileo Galilei',
+          'D. Nikola Tesla'
+        ],
+        'correctOption': 'B. Albert Einstein',
+      },
+    ];
+
     return MaterialApp(
       title: 'Flash Card App',
       theme: ThemeData(
@@ -14,9 +53,13 @@ class FlashCardApp extends StatelessWidget {
       ),
       home: const HomeScreen(),
       routes: {
-        '/viewFlashCards': (context) => const ViewFlashCardsScreen(),
-        '/createFlashCards': (context) => const CreateFlashCardsScreen(),
-        '/takeQuiz': (context) => const TakeQuizScreen(),
+        '/viewFlashCards': (context) =>
+            ViewFlashCardsScreen(flashCards: flashCards),
+        '/createFlashCards': (context) =>
+            CreateFlashCardsScreen(flashCards: flashCards),
+        '/takeQuiz': (context) => TakeQuizScreen(
+              quizQuestions: flashCards,
+            ),
         '/congratulations': (context) => const CongratulationsScreen(),
       },
     );
@@ -24,7 +67,7 @@ class FlashCardApp extends StatelessWidget {
 }
 
 class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
+  const HomeScreen({Key? key});
 
   @override
   Widget build(BuildContext context) {
@@ -71,7 +114,8 @@ class HomeScreen extends StatelessWidget {
 }
 
 class ViewFlashCardsScreen extends StatefulWidget {
-  const ViewFlashCardsScreen({super.key});
+  final List<Map<String, dynamic>> flashCards;
+  const ViewFlashCardsScreen({Key? key, required this.flashCards});
 
   @override
   _ViewFlashCardsScreenState createState() => _ViewFlashCardsScreenState();
@@ -80,47 +124,9 @@ class ViewFlashCardsScreen extends StatefulWidget {
 class _ViewFlashCardsScreenState extends State<ViewFlashCardsScreen> {
   int _currentIndex = 0;
 
-  final List<Map<String, dynamic>> flashCards = [
-    {
-      'question': 'Which of the following animals can sleep with one eye open?',
-      'options': ['A. Giraffe', 'B. Elephant', 'C. Dolphin', 'D. Penguin'],
-      'correctOption': 'C. Dolphin',
-    },
-    {
-      'question': 'How many bones does an adult human have?',
-      'options': ['A. 206', 'B. 212', 'C. 196', 'D. 220'],
-      'correctOption': 'A. 206',
-    },
-    {
-      'question': 'What is the tallest building in the world?',
-      'options': [
-        'A. Burj Khalifa',
-        'B. Shanghai Tower',
-        'C. Abraj Al Bait Clock Tower',
-        'D. Taipei 101'
-      ],
-      'correctOption': 'A. Burj Khalifa',
-    },
-    {
-      'question': 'What is the capital of France?',
-      'options': ['A. Madrid', 'B. London', 'C. Rome', 'D. Paris'],
-      'correctOption': 'D. Paris',
-    },
-    {
-      'question': 'Who is known as the father of modern physics?',
-      'options': [
-        'A. Isaac Newton',
-        'B. Albert Einstein',
-        'C. Galileo Galilei',
-        'D. Nikola Tesla'
-      ],
-      'correctOption': 'B. Albert Einstein',
-    },
-  ];
-
   void _nextCard() {
     setState(() {
-      _currentIndex = (_currentIndex + 1) % flashCards.length;
+      _currentIndex = (_currentIndex + 1) % widget.flashCards.length;
     });
   }
 
@@ -149,7 +155,7 @@ class _ViewFlashCardsScreenState extends State<ViewFlashCardsScreen> {
                   ),
                   const SizedBox(height: 20),
                   Text(
-                    flashCards[_currentIndex]['question'],
+                    widget.flashCards[_currentIndex]['question'],
                     style: const TextStyle(fontSize: 20),
                   ),
                 ],
@@ -164,14 +170,15 @@ class _ViewFlashCardsScreenState extends State<ViewFlashCardsScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
-                  for (final option in flashCards[_currentIndex]['options'])
+                  for (final option in widget.flashCards[_currentIndex]
+                      ['options'])
                     ElevatedButton(
                       onPressed: () {},
-                      style:
-                          option == flashCards[_currentIndex]['correctOption']
-                              ? ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.green)
-                              : null,
+                      style: option ==
+                              widget.flashCards[_currentIndex]['correctOption']
+                          ? ElevatedButton.styleFrom(
+                              backgroundColor: Colors.green)
+                          : null,
                       child: Text(option),
                     ),
                 ],
@@ -190,7 +197,9 @@ class _ViewFlashCardsScreenState extends State<ViewFlashCardsScreen> {
 }
 
 class CreateFlashCardsScreen extends StatefulWidget {
-  const CreateFlashCardsScreen({Key? key}) : super(key: key);
+  final List<Map<String, dynamic>> flashCards;
+  const CreateFlashCardsScreen({Key? key, required this.flashCards})
+      : super(key: key);
 
   @override
   _CreateFlashCardsScreenState createState() => _CreateFlashCardsScreenState();
@@ -204,6 +213,25 @@ class _CreateFlashCardsScreenState extends State<CreateFlashCardsScreen> {
   final TextEditingController _backController4 = TextEditingController();
 
   int _correctAnswerIndex = -1;
+
+  void _saveFlashCard() {
+    final newFlashCard = {
+      'question': _frontController.text,
+      'options': [
+        _backController1.text,
+        _backController2.text,
+        _backController3.text,
+        _backController4.text
+      ],
+      'correctOption': _backController1.text
+    };
+
+    setState(() {
+      widget.flashCards.add(newFlashCard);
+    });
+
+    Navigator.pop(context);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -286,9 +314,7 @@ class _CreateFlashCardsScreenState extends State<CreateFlashCardsScreen> {
               ),
               const SizedBox(height: 20),
               ElevatedButton(
-                onPressed: () {
-                  // Logic for saving flash card will be implemented here
-                },
+                onPressed: _saveFlashCard,
                 child: const Text('Save Flash Card'),
               ),
             ],
@@ -310,7 +336,10 @@ class _CreateFlashCardsScreenState extends State<CreateFlashCardsScreen> {
 }
 
 class TakeQuizScreen extends StatefulWidget {
-  const TakeQuizScreen({super.key});
+  final List<Map<String, dynamic>> quizQuestions;
+
+  const TakeQuizScreen({Key? key, required this.quizQuestions})
+      : super(key: key);
 
   @override
   _TakeQuizScreenState createState() => _TakeQuizScreenState();
@@ -320,46 +349,9 @@ class _TakeQuizScreenState extends State<TakeQuizScreen> {
   int _currentIndex = 0;
   int _score = 0;
 
-  final List<Map<String, dynamic>> quizQuestions = [
-    {
-      'question': 'Which of the following animals can sleep with one eye open?',
-      'options': ['A. Giraffe', 'B. Elephant', 'C. Dolphin', 'D. Penguin'],
-      'correctOption': 'C. Dolphin',
-    },
-    {
-      'question': 'How many bones does an adult human have?',
-      'options': ['A. 206', 'B. 212', 'C. 196', 'D. 220'],
-      'correctOption': 'A. 206',
-    },
-    {
-      'question': 'What is the tallest building in the world?',
-      'options': [
-        'A. Burj Khalifa',
-        'B. Shanghai Tower',
-        'C. Abraj Al Bait Clock Tower',
-        'D. Taipei 101'
-      ],
-      'correctOption': 'A. Burj Khalifa',
-    },
-    {
-      'question': 'What is the capital of France?',
-      'options': ['A. Madrid', 'B. London', 'C. Rome', 'D. Paris'],
-      'correctOption': 'D. Paris',
-    },
-    {
-      'question': 'Who is known as the father of modern physics?',
-      'options': [
-        'A. Isaac Newton',
-        'B. Albert Einstein',
-        'C. Galileo Galilei',
-        'D. Nikola Tesla'
-      ],
-      'correctOption': 'B. Albert Einstein',
-    },
-  ];
-
   void _checkAnswer(String selectedOption) {
-    if (selectedOption == quizQuestions[_currentIndex]['correctOption']) {
+    if (selectedOption ==
+        widget.quizQuestions[_currentIndex]['correctOption']) {
       setState(() {
         _score++;
       });
@@ -369,13 +361,16 @@ class _TakeQuizScreenState extends State<TakeQuizScreen> {
 
   void _nextQuestion() {
     setState(() {
-      _currentIndex = (_currentIndex + 1) % quizQuestions.length;
+      _currentIndex = (_currentIndex + 1) % widget.quizQuestions.length;
     });
     if (_currentIndex == 0) {
       Navigator.pushReplacementNamed(
         context,
         '/congratulations',
-        arguments: {'score': _score, 'totalQuestions': quizQuestions.length},
+        arguments: {
+          'score': _score,
+          'totalQuestions': widget.quizQuestions.length
+        },
       );
     }
   }
@@ -391,18 +386,19 @@ class _TakeQuizScreenState extends State<TakeQuizScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             Text(
-              'Question ${_currentIndex + 1}/${quizQuestions.length}',
+              'Question ${_currentIndex + 1}/${widget.quizQuestions.length}',
               style: const TextStyle(fontSize: 20),
             ),
             const SizedBox(height: 20),
             Text(
-              quizQuestions[_currentIndex]['question'],
+              widget.quizQuestions[_currentIndex]['question'],
               style: const TextStyle(fontSize: 20),
             ),
             const SizedBox(height: 20),
             Column(
               children: <Widget>[
-                for (final option in quizQuestions[_currentIndex]['options'])
+                for (final option in widget.quizQuestions[_currentIndex]
+                    ['options'])
                   ElevatedButton(
                     onPressed: () {
                       _checkAnswer(option);
