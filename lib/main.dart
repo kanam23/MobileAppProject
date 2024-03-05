@@ -130,6 +130,15 @@ class _ViewFlashCardsScreenState extends State<ViewFlashCardsScreen> {
     });
   }
 
+  void _deleteCurrentCard() {
+    setState(() {
+      widget.flashCards.removeAt(_currentIndex);
+      if (_currentIndex >= widget.flashCards.length) {
+        _currentIndex = 0;
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -166,7 +175,7 @@ class _ViewFlashCardsScreenState extends State<ViewFlashCardsScreen> {
               width: 350,
               height: 250,
               padding: const EdgeInsets.all(20.0),
-              color: Colors.green,
+              color: Colors.red,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
@@ -185,9 +194,25 @@ class _ViewFlashCardsScreenState extends State<ViewFlashCardsScreen> {
               ),
             ),
             const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: _nextCard,
-              child: const Text('Next'),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                ElevatedButton(
+                  onPressed: _nextCard,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.green,
+                  ),
+                  child: const Text('Next'),
+                ),
+                const SizedBox(width: 20),
+                ElevatedButton(
+                  onPressed: _deleteCurrentCard,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.red,
+                  ),
+                  child: const Text('Delete'),
+                ),
+              ],
             ),
           ],
         ),
@@ -212,23 +237,33 @@ class _CreateFlashCardsScreenState extends State<CreateFlashCardsScreen> {
   final TextEditingController _backController3 = TextEditingController();
   final TextEditingController _backController4 = TextEditingController();
 
-  int _correctAnswerIndex = -1;
+  int _correctAnswerIndex = 0; // Initialize correct answer index to 0
 
   void _saveFlashCard() {
+    final List<String> options = [
+      _backController1.text,
+      _backController2.text,
+      _backController3.text,
+      _backController4.text
+    ];
+
     final newFlashCard = {
       'question': _frontController.text,
-      'options': [
-        _backController1.text,
-        _backController2.text,
-        _backController3.text,
-        _backController4.text
-      ],
-      'correctOption': _backController1.text
+      'options': options,
+      'correctOption': options[_correctAnswerIndex],
     };
 
     setState(() {
       widget.flashCards.add(newFlashCard);
     });
+
+    // Clear the text controllers and reset correct answer index
+    _frontController.clear();
+    _backController1.clear();
+    _backController2.clear();
+    _backController3.clear();
+    _backController4.clear();
+    _correctAnswerIndex = 0; // Reset correct answer index
 
     Navigator.pop(context);
   }
@@ -301,8 +336,13 @@ class _CreateFlashCardsScreenState extends State<CreateFlashCardsScreen> {
                                             ? _backController3
                                             : _backController4,
                                 decoration: InputDecoration(
-                                  hintText: 'Enter answer choice ${i + 1}',
+                                  hintText:
+                                      'Enter answer choice ${String.fromCharCode(65 + i)}',
                                   border: const OutlineInputBorder(),
+                                  fillColor: i == _correctAnswerIndex
+                                      ? Colors.green
+                                      : null,
+                                  filled: true,
                                 ),
                               ),
                             ),
@@ -349,19 +389,25 @@ class _TakeQuizScreenState extends State<TakeQuizScreen> {
   int _currentIndex = 0;
   int _score = 0;
 
+  String? _hoveredOption;
+
   void _checkAnswer(String selectedOption) {
-    if (selectedOption ==
-        widget.quizQuestions[_currentIndex]['correctOption']) {
+    final correctOption = widget.quizQuestions[_currentIndex]['correctOption'];
+
+    if (selectedOption == correctOption) {
       setState(() {
         _score++;
       });
     }
+
     _nextQuestion();
   }
 
   void _nextQuestion() {
     setState(() {
       _currentIndex = (_currentIndex + 1) % widget.quizQuestions.length;
+      _hoveredOption =
+          null; // Reset hovered option when moving to the next question
     });
     if (_currentIndex == 0) {
       Navigator.pushReplacementNamed(
@@ -399,11 +445,27 @@ class _TakeQuizScreenState extends State<TakeQuizScreen> {
               children: <Widget>[
                 for (final option in widget.quizQuestions[_currentIndex]
                     ['options'])
-                  ElevatedButton(
-                    onPressed: () {
-                      _checkAnswer(option);
+                  MouseRegion(
+                    onHover: (event) {
+                      setState(() {
+                        _hoveredOption = option;
+                      });
                     },
-                    child: Text(option),
+                    onExit: (event) {
+                      setState(() {
+                        _hoveredOption = null;
+                      });
+                    },
+                    child: ElevatedButton(
+                      onPressed: () {
+                        _checkAnswer(option);
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor:
+                            _hoveredOption == option ? Colors.green : null,
+                      ),
+                      child: Text(option),
+                    ),
                   ),
               ],
             ),
@@ -440,6 +502,26 @@ class CongratulationsScreen extends StatelessWidget {
             Text(
               'Your Score: $score/$totalQuestions',
               style: const TextStyle(fontSize: 20),
+            ),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pushReplacementNamed(context, '/takeQuiz');
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.green,
+              ),
+              child: const Text('Try Again'),
+            ),
+            const SizedBox(height: 10),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.popUntil(context, ModalRoute.withName('/'));
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.blue,
+              ),
+              child: const Text('Home'),
             ),
           ],
         ),
