@@ -1,29 +1,43 @@
+// view_flashcards.dart
+
 import 'package:flutter/material.dart';
+import 'database_helper.dart';
 
 class ViewFlashCardsScreen extends StatefulWidget {
-  final List<Map<String, dynamic>> flashCards;
-  const ViewFlashCardsScreen({Key? key, required this.flashCards});
+  const ViewFlashCardsScreen({Key? key});
 
   @override
   _ViewFlashCardsScreenState createState() => _ViewFlashCardsScreenState();
 }
 
 class _ViewFlashCardsScreenState extends State<ViewFlashCardsScreen> {
+  late List<Map<String, dynamic>> _flashCards;
   int _currentIndex = 0;
 
-  void _nextCard() {
+  @override
+  void initState() {
+    super.initState();
+    _loadFlashCards();
+  }
+
+  void _loadFlashCards() async {
+    final flashCards =
+        await FlashcardDatabaseHelper.instance.getAllFlashcards();
     setState(() {
-      _currentIndex = (_currentIndex + 1) % widget.flashCards.length;
+      _flashCards = List<Map<String, dynamic>>.from(flashCards);
     });
   }
 
-  void _deleteCurrentCard() {
+  void _nextCard() {
     setState(() {
-      widget.flashCards.removeAt(_currentIndex);
-      if (_currentIndex >= widget.flashCards.length) {
-        _currentIndex = 0;
-      }
+      _currentIndex = (_currentIndex + 1) % _flashCards.length;
     });
+  }
+
+  void _deleteCurrentCard() async {
+    final int id = _flashCards[_currentIndex]['_id'];
+    await FlashcardDatabaseHelper.instance.deleteFlashcard(id);
+    _loadFlashCards();
   }
 
   @override
@@ -33,7 +47,7 @@ class _ViewFlashCardsScreenState extends State<ViewFlashCardsScreen> {
         title: const Text('View Flash Cards'),
       ),
       body: Center(
-        child: widget.flashCards.isNotEmpty // Check if flashCards is not empty
+        child: _flashCards.isNotEmpty
             ? Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
@@ -52,7 +66,7 @@ class _ViewFlashCardsScreenState extends State<ViewFlashCardsScreen> {
                         ),
                         const SizedBox(height: 20),
                         Text(
-                          widget.flashCards[_currentIndex]['question'],
+                          _flashCards[_currentIndex]['question'],
                           style: const TextStyle(fontSize: 20),
                         ),
                       ],
@@ -67,13 +81,12 @@ class _ViewFlashCardsScreenState extends State<ViewFlashCardsScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
-                        for (final option in widget.flashCards[_currentIndex]
-                            ['options'])
+                        for (final option
+                            in _flashCards[_currentIndex]['options'].split(','))
                           ElevatedButton(
                             onPressed: () {},
                             style: option ==
-                                    widget.flashCards[_currentIndex]
-                                        ['correctOption']
+                                    _flashCards[_currentIndex]['correctOption']
                                 ? ElevatedButton.styleFrom(
                                     backgroundColor: Colors.green)
                                 : null,
@@ -105,8 +118,7 @@ class _ViewFlashCardsScreenState extends State<ViewFlashCardsScreen> {
                   ),
                 ],
               )
-            : // Display text when no flash cards are available
-            const Text('No flash cards have been made'),
+            : const Text('No flash cards available'),
       ),
     );
   }

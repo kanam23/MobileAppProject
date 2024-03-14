@@ -1,10 +1,10 @@
+// take_quiz.dart
+
 import 'package:flutter/material.dart';
+import 'database_helper.dart';
 
 class TakeQuizScreen extends StatefulWidget {
-  final List<Map<String, dynamic>> quizQuestions;
-
-  const TakeQuizScreen({Key? key, required this.quizQuestions})
-      : super(key: key);
+  const TakeQuizScreen({Key? key}) : super(key: key);
 
   @override
   _TakeQuizScreenState createState() => _TakeQuizScreenState();
@@ -16,8 +16,23 @@ class _TakeQuizScreenState extends State<TakeQuizScreen> {
 
   String? _hoveredOption;
 
+  List<Map<String, dynamic>> _quizQuestions = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadQuizQuestions();
+  }
+
+  Future<void> _loadQuizQuestions() async {
+    _quizQuestions = await FlashcardDatabaseHelper.instance.getAllFlashcards();
+    setState(() {
+      _currentIndex = 0;
+    });
+  }
+
   void _checkAnswer(String selectedOption) {
-    final correctOption = widget.quizQuestions[_currentIndex]['correctOption'];
+    final correctOption = _quizQuestions[_currentIndex]['correctOption'];
 
     if (selectedOption == correctOption) {
       setState(() {
@@ -30,21 +45,14 @@ class _TakeQuizScreenState extends State<TakeQuizScreen> {
 
   void _nextQuestion() {
     setState(() {
-      _currentIndex = (_currentIndex + 1) % widget.quizQuestions.length;
-      if (widget.quizQuestions.isEmpty) {
-        _currentIndex = 0; // Reset _currentIndex if quizQuestions is empty
-      }
-      _hoveredOption =
-          null; // Reset hovered option when moving to the next question
+      _currentIndex = (_currentIndex + 1) % _quizQuestions.length;
+      _hoveredOption = null;
     });
-    if (_currentIndex == 0 && widget.quizQuestions.isNotEmpty) {
+    if (_currentIndex == 0 && _quizQuestions.isNotEmpty) {
       Navigator.pushReplacementNamed(
         context,
         '/congratulations',
-        arguments: {
-          'score': _score,
-          'totalQuestions': widget.quizQuestions.length
-        },
+        arguments: {'score': _score, 'totalQuestions': _quizQuestions.length},
       );
     }
   }
@@ -56,24 +64,25 @@ class _TakeQuizScreenState extends State<TakeQuizScreen> {
         title: const Text('Take Quiz'),
       ),
       body: Center(
-        child: widget.quizQuestions.isNotEmpty
+        child: _quizQuestions.isNotEmpty
             ? Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
                   Text(
-                    'Question ${_currentIndex + 1}/${widget.quizQuestions.length}',
+                    'Question ${_currentIndex + 1}/${_quizQuestions.length}',
                     style: const TextStyle(fontSize: 20),
                   ),
                   const SizedBox(height: 20),
                   Text(
-                    widget.quizQuestions[_currentIndex]['question'],
+                    _quizQuestions[_currentIndex]['question'],
                     style: const TextStyle(fontSize: 20),
                   ),
                   const SizedBox(height: 20),
                   Column(
                     children: <Widget>[
-                      for (final option in widget.quizQuestions[_currentIndex]
-                          ['options'])
+                      for (final option in _quizQuestions[_currentIndex]
+                              ['options']
+                          .split(','))
                         MouseRegion(
                           onHover: (event) {
                             setState(() {

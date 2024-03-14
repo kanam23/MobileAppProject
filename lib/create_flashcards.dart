@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
+import 'database_helper.dart';
 
 class CreateFlashCardsScreen extends StatefulWidget {
-  final List<Map<String, dynamic>> flashCards;
-  const CreateFlashCardsScreen({Key? key, required this.flashCards})
-      : super(key: key);
+  const CreateFlashCardsScreen({Key? key}) : super(key: key);
 
   @override
   _CreateFlashCardsScreenState createState() => _CreateFlashCardsScreenState();
@@ -18,7 +17,7 @@ class _CreateFlashCardsScreenState extends State<CreateFlashCardsScreen> {
 
   int _correctAnswerIndex = 0; // Initialize correct answer index to 0
 
-  void _saveFlashCard() {
+  void _saveFlashCard() async {
     final List<String> options = [
       _backController1.text,
       _backController2.text,
@@ -28,13 +27,12 @@ class _CreateFlashCardsScreenState extends State<CreateFlashCardsScreen> {
 
     final newFlashCard = {
       'question': _frontController.text,
-      'options': options,
+      'options': options.join(','),
       'correctOption': options[_correctAnswerIndex],
     };
 
-    setState(() {
-      widget.flashCards.add(newFlashCard);
-    });
+    // Insert new flashcard into the database
+    await FlashcardDatabaseHelper.instance.insertFlashcard(newFlashCard);
 
     // Clear the text controllers and reset correct answer index
     _frontController.clear();
@@ -44,7 +42,9 @@ class _CreateFlashCardsScreenState extends State<CreateFlashCardsScreen> {
     _backController4.clear();
     _correctAnswerIndex = 0; // Reset correct answer index
 
-    Navigator.pop(context);
+    if (mounted) {
+      Navigator.pop(context);
+    }
   }
 
   @override
