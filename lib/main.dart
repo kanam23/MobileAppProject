@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'view_flashcards.dart';
+import 'create_flashcards.dart';
+import 'take_quiz.dart';
+import 'congratulations.dart';
 
 void main() => runApp(const FlashCardApp());
 
@@ -146,80 +150,76 @@ class _ViewFlashCardsScreenState extends State<ViewFlashCardsScreen> {
         title: const Text('View Flash Cards'),
       ),
       body: Center(
-        child: widget.flashCards.isNotEmpty // Check if flashCards is not empty
-            ? Column(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            // Front of the flash card
+            Container(
+              width: 350,
+              height: 250,
+              padding: const EdgeInsets.all(20.0),
+              color: Colors.blue,
+              child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  // Front of the flash card
-                  Container(
-                    width: 350,
-                    height: 250,
-                    padding: const EdgeInsets.all(20.0),
-                    color: Colors.blue,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Text(
-                          'Fun Fact:',
-                          style: TextStyle(fontSize: 24),
-                        ),
-                        const SizedBox(height: 20),
-                        Text(
-                          widget.flashCards[_currentIndex]['question'],
-                          style: const TextStyle(fontSize: 20),
-                        ),
-                      ],
-                    ),
-                  ),
-                  // Back of the flash card with answer choices
-                  Container(
-                    width: 350,
-                    height: 250,
-                    padding: const EdgeInsets.all(20.0),
-                    color: Colors.red,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
-                        for (final option in widget.flashCards[_currentIndex]
-                            ['options'])
-                          ElevatedButton(
-                            onPressed: () {},
-                            style: option ==
-                                    widget.flashCards[_currentIndex]
-                                        ['correctOption']
-                                ? ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.green)
-                                : null,
-                            child: Text(option),
-                          ),
-                      ],
-                    ),
+                children: [
+                  const Text(
+                    'Fun Fact:',
+                    style: TextStyle(fontSize: 24),
                   ),
                   const SizedBox(height: 20),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      ElevatedButton(
-                        onPressed: _nextCard,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.green,
-                        ),
-                        child: const Text('Next'),
-                      ),
-                      const SizedBox(width: 20),
-                      ElevatedButton(
-                        onPressed: _deleteCurrentCard,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.red,
-                        ),
-                        child: const Text('Delete'),
-                      ),
-                    ],
+                  Text(
+                    widget.flashCards[_currentIndex]['question'],
+                    style: const TextStyle(fontSize: 20),
                   ),
                 ],
-              )
-            : // Display text when no flash cards are available
-            const Text('No flash cards have been made'),
+              ),
+            ),
+            // Back of the flash card with answer choices
+            Container(
+              width: 350,
+              height: 250,
+              padding: const EdgeInsets.all(20.0),
+              color: Colors.red,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  for (final option in widget.flashCards[_currentIndex]
+                      ['options'])
+                    ElevatedButton(
+                      onPressed: () {},
+                      style: option ==
+                              widget.flashCards[_currentIndex]['correctOption']
+                          ? ElevatedButton.styleFrom(
+                              backgroundColor: Colors.green)
+                          : null,
+                      child: Text(option),
+                    ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 20),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                ElevatedButton(
+                  onPressed: _nextCard,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.green,
+                  ),
+                  child: const Text('Next'),
+                ),
+                const SizedBox(width: 20),
+                ElevatedButton(
+                  onPressed: _deleteCurrentCard,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.red,
+                  ),
+                  child: const Text('Delete'),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
