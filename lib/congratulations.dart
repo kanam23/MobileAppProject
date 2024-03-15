@@ -16,7 +16,7 @@ class CongratulationsScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          'Congratulations',
+          'Quiz Results',
           style: TextStyle(color: Colors.white, fontSize: 24),
         ),
         backgroundColor: Colors.blueGrey[900],
