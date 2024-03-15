@@ -37,14 +37,16 @@ class _ViewFlashCardsScreenState extends State<ViewFlashCardsScreen> {
   void _deleteCurrentCard() async {
     final int id = _flashCards[_currentIndex]['_id'];
     await FlashcardDatabaseHelper.instance.deleteFlashcard(id);
-    _loadFlashCards();
+    _loadFlashCards(); // Refresh the flashcards after deletion
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('View Flash Cards'),
+        title: const Text('View Flash Cards',
+            style: TextStyle(color: Colors.white, fontSize: 24)),
+        backgroundColor: Colors.blueGrey[900],
       ),
       body: Center(
         child: _flashCards.isNotEmpty
@@ -56,12 +58,12 @@ class _ViewFlashCardsScreenState extends State<ViewFlashCardsScreen> {
                     width: 350,
                     height: 250,
                     padding: const EdgeInsets.all(20.0),
-                    color: Colors.blue,
+                    color: Colors.blue[300],
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         const Text(
-                          'Fun Fact:',
+                          'Question:',
                           style: TextStyle(fontSize: 24),
                         ),
                         const SizedBox(height: 20),
@@ -77,7 +79,7 @@ class _ViewFlashCardsScreenState extends State<ViewFlashCardsScreen> {
                     width: 350,
                     height: 250,
                     padding: const EdgeInsets.all(20.0),
-                    color: Colors.red,
+                    color: Colors.red[300],
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[

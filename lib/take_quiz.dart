@@ -1,6 +1,6 @@
-// take_quiz.dart
-
 import 'package:flutter/material.dart';
+import 'main.dart';
+import 'package:provider/provider.dart';
 import 'database_helper.dart';
 
 class TakeQuizScreen extends StatefulWidget {
@@ -13,8 +13,6 @@ class TakeQuizScreen extends StatefulWidget {
 class _TakeQuizScreenState extends State<TakeQuizScreen> {
   int _currentIndex = 0;
   int _score = 0;
-
-  String? _hoveredOption;
 
   List<Map<String, dynamic>> _quizQuestions = [];
 
@@ -46,7 +44,6 @@ class _TakeQuizScreenState extends State<TakeQuizScreen> {
   void _nextQuestion() {
     setState(() {
       _currentIndex = (_currentIndex + 1) % _quizQuestions.length;
-      _hoveredOption = null;
     });
     if (_currentIndex == 0 && _quizQuestions.isNotEmpty) {
       Navigator.pushReplacementNamed(
@@ -59,58 +56,91 @@ class _TakeQuizScreenState extends State<TakeQuizScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDarkMode = Provider.of<ThemeProvider>(context).isDarkMode;
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Take Quiz'),
+        title: const Text(
+          'Take Quiz',
+          style: TextStyle(color: Colors.white, fontSize: 24),
+        ),
+        backgroundColor: Colors.blueGrey[900],
       ),
       body: Center(
-        child: _quizQuestions.isNotEmpty
-            ? Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  Text(
-                    'Question ${_currentIndex + 1}/${_quizQuestions.length}',
-                    style: const TextStyle(fontSize: 20),
-                  ),
-                  const SizedBox(height: 20),
-                  Text(
-                    _quizQuestions[_currentIndex]['question'],
-                    style: const TextStyle(fontSize: 20),
-                  ),
-                  const SizedBox(height: 20),
-                  Column(
-                    children: <Widget>[
-                      for (final option in _quizQuestions[_currentIndex]
-                              ['options']
-                          .split(','))
-                        MouseRegion(
-                          onHover: (event) {
-                            setState(() {
-                              _hoveredOption = option;
-                            });
-                          },
-                          onExit: (event) {
-                            setState(() {
-                              _hoveredOption = null;
-                            });
-                          },
-                          child: ElevatedButton(
-                            onPressed: () {
-                              _checkAnswer(option);
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: _hoveredOption == option
-                                  ? Colors.green
-                                  : null,
-                            ),
-                            child: Text(option),
-                          ),
+        child: Container(
+          color: isDarkMode ? Colors.grey[900] : Colors.grey[200],
+          padding: const EdgeInsets.all(20.0),
+          child: _quizQuestions.isNotEmpty
+              ? Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    Text(
+                      'Question ${_currentIndex + 1}/${_quizQuestions.length}',
+                      style: TextStyle(
+                        fontSize: 24,
+                        color: isDarkMode ? Colors.white : Colors.black,
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(10.0),
+                      decoration: BoxDecoration(
+                        color: isDarkMode ? Colors.white : Colors.red[400],
+                        borderRadius: BorderRadius.circular(0.0),
+                      ),
+                      child: Text(
+                        _quizQuestions[_currentIndex]['question'],
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 20,
+                          color: isDarkMode ? Colors.black : Colors.white,
                         ),
-                    ],
-                  ),
-                ],
-              )
-            : const Text('No flash cards to take quiz'),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    Column(
+                      children: <Widget>[
+                        for (final option in _quizQuestions[_currentIndex]
+                                ['options']
+                            .split(','))
+                          MouseRegion(
+                            onHover: (event) {
+                              setState(() {});
+                            },
+                            onExit: (event) {
+                              setState(() {});
+                            },
+                            child: ElevatedButton(
+                              onPressed: () {
+                                _checkAnswer(option);
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.blue[400],
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 10.0),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10.0),
+                                ),
+                              ),
+                              child: SizedBox(
+                                width: double.infinity,
+                                child: Text(
+                                  option,
+                                  textAlign: TextAlign.center,
+                                  style: const TextStyle(
+                                    color: Colors.black,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                  ],
+                )
+              : const Text('No flash cards to take quiz'),
+        ),
       ),
     );
   }

@@ -34,7 +34,6 @@ class _CreateFlashCardsScreenState extends State<CreateFlashCardsScreen> {
     // Insert new flashcard into the database
     await FlashcardDatabaseHelper.instance.insertFlashcard(newFlashCard);
 
-    // Clear the text controllers and reset correct answer index
     _frontController.clear();
     _backController1.clear();
     _backController2.clear();
@@ -51,7 +50,9 @@ class _CreateFlashCardsScreenState extends State<CreateFlashCardsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Create Flash Cards'),
+        title: const Text('Create Flash Cards',
+            style: TextStyle(color: Colors.white, fontSize: 24)),
+        backgroundColor: Colors.blueGrey[900],
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -134,6 +135,13 @@ class _CreateFlashCardsScreenState extends State<CreateFlashCardsScreen> {
               const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: _saveFlashCard,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blue[300],
+                  padding: const EdgeInsets.symmetric(vertical: 15.0),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
+                ),
                 child: const Text('Save Flash Card'),
               ),
             ],
