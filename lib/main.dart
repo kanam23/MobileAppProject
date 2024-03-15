@@ -11,12 +11,45 @@ void main() async {
   final FlashcardDatabaseHelper dbHelper = FlashcardDatabaseHelper.instance;
   await dbHelper.database; // Ensure that the database is initialized
 
+  // Check if there are any flashcards in the database
+  final List<Map<String, dynamic>> flashcards =
+      await dbHelper.getAllFlashcards();
+  if (flashcards.isEmpty) {
+    // If there are no flashcards, insert pre-made example flashcards
+    await insertExampleFlashcards(dbHelper);
+  }
+
   runApp(
     ChangeNotifierProvider<ThemeProvider>(
       create: (_) => ThemeProvider(),
       child: const FlashCardApp(),
     ),
   );
+}
+
+// Function to insert pre-made example flashcards
+Future<void> insertExampleFlashcards(FlashcardDatabaseHelper dbHelper) async {
+  final List<Map<String, dynamic>> exampleFlashcards = [
+    {
+      'question': 'What is the capital of France?',
+      'options': 'Paris,London,Berlin,Madrid',
+      'correctOption': 'Paris',
+    },
+    {
+      'question': 'Who wrote "To Kill a Mockingbird"?',
+      'options': 'Harper Lee,Mark Twain,Stephen King,JK Rowling',
+      'correctOption': 'Harper Lee',
+    },
+    {
+      'question': 'What is the powerhouse of the cell?',
+      'options': 'Mitochondria,Nucleus,Ribosome,Golgi Apparatus',
+      'correctOption': 'Mitochondria',
+    },
+  ];
+
+  for (final flashcard in exampleFlashcards) {
+    await dbHelper.insertFlashcard(flashcard);
+  }
 }
 
 class ThemeProvider with ChangeNotifier {
