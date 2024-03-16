@@ -17,32 +17,36 @@ class _CreateFlashCardsScreenState extends State<CreateFlashCardsScreen> {
 
   int _correctAnswerIndex = 0; // Initialize correct answer index to 0
 
+  GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+
   void _saveFlashCard() async {
-    final List<String> options = [
-      _backController1.text,
-      _backController2.text,
-      _backController3.text,
-      _backController4.text
-    ];
+    if (_formKey.currentState!.validate()) {
+      final List<String> options = [
+        _backController1.text,
+        _backController2.text,
+        _backController3.text,
+        _backController4.text
+      ];
 
-    final newFlashCard = {
-      'question': _frontController.text,
-      'options': options.join(','),
-      'correctOption': options[_correctAnswerIndex],
-    };
+      final newFlashCard = {
+        'question': _frontController.text,
+        'options': options.join(','),
+        'correctOption': options[_correctAnswerIndex],
+      };
 
-    // Insert new flashcard into the database
-    await FlashcardDatabaseHelper.instance.insertFlashcard(newFlashCard);
+      // Insert new flashcard into the database
+      await FlashcardDatabaseHelper.instance.insertFlashcard(newFlashCard);
 
-    _frontController.clear();
-    _backController1.clear();
-    _backController2.clear();
-    _backController3.clear();
-    _backController4.clear();
-    _correctAnswerIndex = 0; // Reset correct answer index
+      _frontController.clear();
+      _backController1.clear();
+      _backController2.clear();
+      _backController3.clear();
+      _backController4.clear();
+      _correctAnswerIndex = 0; // Reset correct answer index
 
-    if (mounted) {
-      Navigator.pop(context);
+      if (mounted) {
+        Navigator.pop(context);
+      }
     }
   }
 
@@ -57,94 +61,109 @@ class _CreateFlashCardsScreenState extends State<CreateFlashCardsScreen> {
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(20.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: <Widget>[
-              // Front of the flash card input
-              Container(
-                decoration: BoxDecoration(
-                  border: Border.all(color: Colors.blue),
-                  borderRadius: BorderRadius.circular(10.0),
-                ),
-                padding: const EdgeInsets.all(10.0),
-                margin: const EdgeInsets.only(bottom: 20.0),
-                child: TextField(
-                  controller: _frontController,
-                  decoration: const InputDecoration(
-                    hintText: 'Enter front of the flash card',
-                    border: InputBorder.none,
+          child: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: <Widget>[
+                // Front of the flash card input
+                Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.blue),
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
+                  padding: const EdgeInsets.all(10.0),
+                  margin: const EdgeInsets.only(bottom: 20.0),
+                  child: TextFormField(
+                    controller: _frontController,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter the front of the flash card';
+                      }
+                      return null;
+                    },
+                    decoration: const InputDecoration(
+                      hintText: 'Enter front of the flash card',
+                      border: InputBorder.none,
+                    ),
                   ),
                 ),
-              ),
-              // Back of the flash card input with four answer choices
-              Container(
-                decoration: BoxDecoration(
-                  border: Border.all(color: Colors.green),
-                  borderRadius: BorderRadius.circular(10.0),
-                ),
-                padding: const EdgeInsets.all(10.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    const Text(
-                      'Back of the flash card (Answer choices)',
-                      style:
-                          TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                    ),
-                    const SizedBox(height: 10),
-                    for (int i = 0; i < 4; i++)
-                      Row(
-                        children: [
-                          Radio<int>(
-                            value: i,
-                            groupValue: _correctAnswerIndex,
-                            onChanged: (value) {
-                              setState(() {
-                                _correctAnswerIndex = value!;
-                              });
-                            },
-                          ),
-                          Expanded(
-                            child: Container(
-                              margin: const EdgeInsets.only(bottom: 10.0),
-                              child: TextField(
-                                controller: i == 0
-                                    ? _backController1
-                                    : i == 1
-                                        ? _backController2
-                                        : i == 2
-                                            ? _backController3
-                                            : _backController4,
-                                decoration: InputDecoration(
-                                  hintText:
-                                      'Enter answer choice ${String.fromCharCode(65 + i)}',
-                                  border: const OutlineInputBorder(),
-                                  fillColor: i == _correctAnswerIndex
-                                      ? Colors.green
-                                      : null,
-                                  filled: true,
+                // Back of the flash card input with four answer choices
+                Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.green),
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
+                  padding: const EdgeInsets.all(10.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      const Text(
+                        'Back of the flash card (Answer choices)',
+                        style: TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(height: 10),
+                      for (int i = 0; i < 4; i++)
+                        Row(
+                          children: [
+                            Radio<int>(
+                              value: i,
+                              groupValue: _correctAnswerIndex,
+                              onChanged: (value) {
+                                setState(() {
+                                  _correctAnswerIndex = value!;
+                                });
+                              },
+                            ),
+                            Expanded(
+                              child: Container(
+                                margin: const EdgeInsets.only(bottom: 10.0),
+                                child: TextFormField(
+                                  controller: i == 0
+                                      ? _backController1
+                                      : i == 1
+                                          ? _backController2
+                                          : i == 2
+                                              ? _backController3
+                                              : _backController4,
+                                  validator: (value) {
+                                    if (value == null || value.isEmpty) {
+                                      return 'Please enter answer choice ${String.fromCharCode(65 + i)}';
+                                    }
+                                    return null;
+                                  },
+                                  decoration: InputDecoration(
+                                    hintText:
+                                        'Enter answer choice ${String.fromCharCode(65 + i)}',
+                                    border: const OutlineInputBorder(),
+                                    fillColor: i == _correctAnswerIndex
+                                        ? Colors.green
+                                        : null,
+                                    filled: true,
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
-                        ],
-                      ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: _saveFlashCard,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue[300],
-                  padding: const EdgeInsets.symmetric(vertical: 15.0),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10.0),
+                          ],
+                        ),
+                    ],
                   ),
                 ),
-                child: const Text('Save Flash Card'),
-              ),
-            ],
+                const SizedBox(height: 20),
+                ElevatedButton(
+                  onPressed: _saveFlashCard,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue[300],
+                    padding: const EdgeInsets.symmetric(vertical: 15.0),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                    ),
+                  ),
+                  child: const Text('Save Flash Card'),
+                ),
+              ],
+            ),
           ),
         ),
       ),
