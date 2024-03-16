@@ -1,6 +1,19 @@
 # project1
 
-A new Flutter project.
+A FlashCard Quiz Game Flutter project.
+
+FlashCard Quiz Game App Links
+Khairul Anam
+Douglas Hernandez-Ortiz
+
+Youtube:
+https://youtu.be/sAvVsB4WqUg 
+
+GitHub:
+https://github.com/kanam23/MobileAppProject 
+
+Presentation:
+https://docs.google.com/presentation/d/1G8i-nTyaw5hYscgTIQHPYWihvL9CiDPoG79HokCHPxE/edit?usp=sharing
 
 ## Getting Started
 
