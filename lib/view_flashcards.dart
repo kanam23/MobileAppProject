@@ -1,5 +1,3 @@
-// view_flashcards.dart
-
 import 'package:flutter/material.dart';
 import 'database_helper.dart';
 
@@ -37,7 +35,19 @@ class _ViewFlashCardsScreenState extends State<ViewFlashCardsScreen> {
   void _deleteCurrentCard() async {
     final int id = _flashCards[_currentIndex]['_id'];
     await FlashcardDatabaseHelper.instance.deleteFlashcard(id);
-    _loadFlashCards(); // Refresh the flashcards after deletion
+    _flashCards.removeAt(_currentIndex);
+
+    if (!mounted) return;
+
+    if (_flashCards.isEmpty) {
+      // If there are no more flashcards after deletion, navigate back to home screen
+      Navigator.pop(context);
+      return;
+    }
+    if (_currentIndex >= _flashCards.length) {
+      _currentIndex = (_flashCards.length - 1).clamp(0, _flashCards.length - 1);
+    }
+    setState(() {});
   }
 
   @override

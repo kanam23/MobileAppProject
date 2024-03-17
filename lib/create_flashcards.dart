@@ -17,7 +17,7 @@ class _CreateFlashCardsScreenState extends State<CreateFlashCardsScreen> {
 
   int _correctAnswerIndex = 0; // Initialize correct answer index to 0
 
-  GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   void _saveFlashCard() async {
     if (_formKey.currentState!.validate()) {
