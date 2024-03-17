@@ -13,6 +13,15 @@ class CongratulationsScreen extends StatelessWidget {
     final int totalQuestions = arguments['totalQuestions'];
     final isDarkMode = Provider.of<ThemeProvider>(context).isDarkMode;
 
+    // Calculate the percentage score
+    final double percentageScore = (score / totalQuestions) * 100;
+
+    // Determine the message to display based on the percentage score
+    String message = 'Congratulations!';
+    if (percentageScore <= 50) {
+      message = 'Too bad...';
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: const Text(
@@ -25,12 +34,12 @@ class CongratulationsScreen extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            const Text(
-              'Congratulations!',
+            Text(
+              message,
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
-                color: Colors.amber,
+                color: percentageScore > 50 ? Colors.amber : Colors.red,
               ),
             ),
             const SizedBox(height: 20),

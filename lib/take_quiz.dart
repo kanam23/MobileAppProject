@@ -15,6 +15,8 @@ class _TakeQuizScreenState extends State<TakeQuizScreen> {
   int _score = 0;
 
   List<Map<String, dynamic>> _quizQuestions = [];
+  List<int> _questionOrder = [];
+  List<List<String>> _shuffledOptions = [];
 
   @override
   void initState() {
@@ -24,13 +26,32 @@ class _TakeQuizScreenState extends State<TakeQuizScreen> {
 
   Future<void> _loadQuizQuestions() async {
     _quizQuestions = await FlashcardDatabaseHelper.instance.getAllFlashcards();
+    _questionOrder = _shuffleQuestionOrder(_quizQuestions.length);
+    _shuffledOptions = _shuffleOptions();
     setState(() {
       _currentIndex = 0;
     });
   }
 
+  List<int> _shuffleQuestionOrder(int totalQuestions) {
+    List<int> questionOrder = List.generate(totalQuestions, (index) => index);
+    questionOrder.shuffle();
+    return questionOrder;
+  }
+
+  List<List<String>> _shuffleOptions() {
+    List<List<String>> shuffledOptions = [];
+    for (var index in _questionOrder) {
+      List<String> options = _quizQuestions[index]['options'].split(',');
+      options.shuffle();
+      shuffledOptions.add(options);
+    }
+    return shuffledOptions;
+  }
+
   void _checkAnswer(String selectedOption) {
-    final correctOption = _quizQuestions[_currentIndex]['correctOption'];
+    final correctOption =
+        _quizQuestions[_questionOrder[_currentIndex]]['correctOption'];
 
     if (selectedOption == correctOption) {
       setState(() {
@@ -90,7 +111,8 @@ class _TakeQuizScreenState extends State<TakeQuizScreen> {
                         borderRadius: BorderRadius.circular(0.0),
                       ),
                       child: Text(
-                        _quizQuestions[_currentIndex]['question'],
+                        _quizQuestions[_questionOrder[_currentIndex]]
+                            ['question'],
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           fontSize: 20,
@@ -101,9 +123,7 @@ class _TakeQuizScreenState extends State<TakeQuizScreen> {
                     const SizedBox(height: 20),
                     Column(
                       children: <Widget>[
-                        for (final option in _quizQuestions[_currentIndex]
-                                ['options']
-                            .split(','))
+                        for (final option in _shuffledOptions[_currentIndex])
                           MouseRegion(
                             onHover: (event) {
                               setState(() {});

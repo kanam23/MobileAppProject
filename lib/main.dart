@@ -32,12 +32,12 @@ Future<void> insertExampleFlashcards(FlashcardDatabaseHelper dbHelper) async {
   final List<Map<String, dynamic>> exampleFlashcards = [
     {
       'question': 'What is the capital of France?',
-      'options': 'Paris,London,Berlin,Madrid',
+      'options': 'London,Berlin,Paris,Madrid',
       'correctOption': 'Paris',
     },
     {
       'question': 'Who wrote "To Kill a Mockingbird"?',
-      'options': 'Harper Lee,Mark Twain,Stephen King,JK Rowling',
+      'options': 'Mark Twain,Harper Lee,Stephen King,JK Rowling',
       'correctOption': 'Harper Lee',
     },
     {

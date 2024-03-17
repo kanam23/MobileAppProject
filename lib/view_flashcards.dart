@@ -32,6 +32,18 @@ class _ViewFlashCardsScreenState extends State<ViewFlashCardsScreen> {
     });
   }
 
+  void _prevCard() {
+    if (_currentIndex == 0) {
+      setState(() {
+        _currentIndex = _flashCards.length - 1;
+      });
+    } else {
+      setState(() {
+        _currentIndex = (_currentIndex - 1).clamp(0, _flashCards.length - 1);
+      });
+    }
+  }
+
   void _deleteCurrentCard() async {
     final int id = _flashCards[_currentIndex]['_id'];
     await FlashcardDatabaseHelper.instance.deleteFlashcard(id);
@@ -63,6 +75,13 @@ class _ViewFlashCardsScreenState extends State<ViewFlashCardsScreen> {
             ? Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                      '${_currentIndex + 1}/${_flashCards.length}',
+                      style: const TextStyle(fontSize: 20),
+                    ),
+                  ),
                   // Front of the flash card
                   Container(
                     width: 350,
@@ -111,6 +130,14 @@ class _ViewFlashCardsScreenState extends State<ViewFlashCardsScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
+                      ElevatedButton(
+                        onPressed: _prevCard,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.orange,
+                        ),
+                        child: const Text('Prev'),
+                      ),
+                      const SizedBox(width: 20),
                       ElevatedButton(
                         onPressed: _nextCard,
                         style: ElevatedButton.styleFrom(
